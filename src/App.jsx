@@ -59,21 +59,58 @@ export default function App() {
       <header style={styles.hero}>
         <div className="container" style={styles.heroContent}>
           <h1 style={styles.heroTitle}> {/*🌱 Aplicação Agroecológica*/}</h1>
-          <p style={styles.heroSubtitle}>Conhecimento compartilhado e ferramentas práticas para um mundo sustentável.</p>
-          <button onClick={() => setView('admin')} className="btn" style={{ backgroundColor: 'transparent', border: '2px solid white', marginTop: '1rem' }}>
-            🔒 Acessar Painel Admin
-          </button>
+          <p style={styles.heroSubtitle}>{/*Conhecimento compartilhado e ferramentas práticas para um mundo sustentável.*/}</p>
+
         </div>
       </header>
 
       {/* NAVEGAÇÃO ABAS PÚBLICAS */}
       <nav style={styles.navbar}>
-        <div className="container" style={styles.navContainer}>
-          <button onClick={() => setActiveTab('videos')} style={{ ...styles.navTab, borderBottom: activeTab === 'videos' ? '3px solid #1a4a1f' : 'none', fontWeight: activeTab === 'videos' ? 'bold' : 'normal' }}>🎬 Vídeos</button>
-          <button onClick={() => setActiveTab('artigos')} style={{ ...styles.navTab, borderBottom: activeTab === 'artigos' ? '3px solid #1a4a1f' : 'none', fontWeight: activeTab === 'artigos' ? 'bold' : 'normal' }}>📄 Artigos & PDFs</button>
-          <button onClick={() => setActiveTab('textos')} style={{ ...styles.navTab, borderBottom: activeTab === 'textos' ? '3px solid #1a4a1f' : 'none', fontWeight: activeTab === 'textos' ? 'bold' : 'normal' }}>📰 Textos & Notícias</button>
-          <button onClick={() => setActiveTab('galeria')} style={{ ...styles.navTab, borderBottom: activeTab === 'galeria' ? '3px solid #1a4a1f' : 'none', fontWeight: activeTab === 'galeria' ? 'bold' : 'normal' }}>🖼️ Galeria</button>
-          <a href="#enviar" style={{ ...styles.navTab, color: '#1a4a1f', fontWeight: 'bold' }}>📥 Enviar Conteúdo</a>
+        <div className="container" style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100%',
+          padding: '0 1rem',
+          flexWrap: 'nowrap'
+        }}>
+
+          <div style={{
+            display: 'flex',
+            gap: '1rem',
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            flex: 1
+          }}>
+            <button onClick={() => setActiveTab('videos')} style={{ ...styles.navTab, borderBottom: activeTab === 'videos' ? '3px solid #1a4a1f' : 'none', fontWeight: activeTab === 'videos' ? 'bold' : 'normal' }}>🎬 Vídeos</button>
+            <button onClick={() => setActiveTab('artigos')} style={{ ...styles.navTab, borderBottom: activeTab === 'artigos' ? '3px solid #1a4a1f' : 'none', fontWeight: activeTab === 'artigos' ? 'bold' : 'normal' }}>📄 Artigos & PDFs</button>
+            <button onClick={() => setActiveTab('textos')} style={{ ...styles.navTab, borderBottom: activeTab === 'textos' ? '3px solid #1a4a1f' : 'none', fontWeight: activeTab === 'textos' ? 'bold' : 'normal' }}>📰 Textos & Notícias</button>
+            <button onClick={() => setActiveTab('galeria')} style={{ ...styles.navTab, borderBottom: activeTab === 'galeria' ? '3px solid #1a4a1f' : 'none', fontWeight: activeTab === 'galeria' ? 'bold' : 'normal' }}>🖼️ Galeria</button>
+            <a href="#enviar" style={{ ...styles.navTab, color: '#1a4a1f', fontWeight: 'bold' }}>📥 Enviar Conteúdo</a>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '1rem' }}>
+            <button
+              onClick={() => setView('admin')}
+              style={{
+                backgroundColor: 'transparent',
+                color: '#1a4a1f',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              🔒 Admin
+            </button>
+          </div>
+
         </div>
       </nav>
 
@@ -131,7 +168,7 @@ export default function App() {
 
 const styles = {
   hero: {
-    backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.85), rgba(26, 74, 31, 0.85)), url('/fundo-hero.jpg')",
+    backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.25), rgba(26, 74, 31, 0.5)), url('/fundo-hero1.jpeg')",
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     color: '#ffffff',
