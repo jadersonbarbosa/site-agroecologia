@@ -114,7 +114,7 @@ export default function App() {
         {user && user.email === 'paulet.ana1@gmail.com' ? (
           <AdminPanel setView={setView} />
         ) : (
-          <div style={{ textAlgin: 'center', padding: '5rem' }}>
+          <div style={{ textAlign: 'center', padding: '5rem' }}>
             <h2>Acesso Restrito 🛑</h2>
             <p>Seu e-mail não possui privilégios de administrador.</p>
             <button onClick={() => setView('publico')} style={{ backgroundColor: '#10b981', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>Voltar para a Home</button>
@@ -128,28 +128,29 @@ export default function App() {
   // RECORTE 2: TELA PÚBLICA TOTALMENTE CORRIDA E DINÂMICA
   // -------------------------------------------------------------------------
   return (
-    <div style={{ backgroundColor: '#f4f7f5', minHeight: '100vh', fontFamily: 'sans-serif', paddingTop: '60px' }}>
+    <div style={{ backgroundColor: '#f4ede4', minHeight: '100vh', fontFamily: 'system-ui, sans-serif', paddingTop: '60px', color: '#3d2817' }}>
 
       {/* Barra de Menu Superior Totalmente Fixa no Topo (Sticky/Fixed Navbar) */}
       <nav style={{
         backgroundColor: '#ffffff',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-        padding: '0.5rem 2rem',
+        boxShadow: '0 2px 8px rgba(61, 40, 23, 0.08)',
+        padding: '0.6rem 2rem',
         position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
-        zIndex: 1000
+        zIndex: 1000,
+        borderBottom: '1px solid rgba(107, 142, 111, 0.15)'
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 
           {/* Links do Menu que acionam a rolagem vertical suave */}
-          <div style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', whiteSpace: 'nowrap', flex: 1 }}>
-            <button onClick={() => rolarPara(secaoVideosRef)} style={{ background: 'none', border: 'none', padding: '10px', color: '#1a4a1f', fontWeight: 'bold', cursor: 'pointer' }}>🎬 Vídeos</button>
-            <button onClick={() => rolarPara(secaoArtigosRef)} style={{ background: 'none', border: 'none', padding: '10px', color: '#1a4a1f', fontWeight: 'bold', cursor: 'pointer' }}>📄 Artigos & PDFs</button>
-            <button onClick={() => rolarPara(secaoNoticiasRef)} style={{ background: 'none', border: 'none', padding: '10px', color: '#1a4a1f', fontWeight: 'bold', cursor: 'pointer' }}>📰 Textos & Notícias</button>
-            <button onClick={() => rolarPara(secaoGaleriaRef)} style={{ background: 'none', border: 'none', padding: '10px', color: '#1a4a1f', fontWeight: 'bold', cursor: 'pointer' }}>🖼️ Galeria</button>
-            <button onClick={() => rolarPara(secaoEnviarRef)} style={{ background: 'none', border: 'none', padding: '10px', color: '#1a4a1f', fontWeight: 'bold', cursor: 'pointer' }}>📥 Enviar Conteúdo</button>
+          <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', whiteSpace: 'nowrap', flex: 1 }}>
+            <button onClick={() => rolarPara(secaoVideosRef)} style={{ background: 'none', border: 'none', padding: '10px', color: '#6b8e6f', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.95rem' }}>🎬 Vídeos</button>
+            <button onClick={() => rolarPara(secaoArtigosRef)} style={{ background: 'none', border: 'none', padding: '10px', color: '#6b8e6f', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.95rem' }}>📄 Artigos & PDFs</button>
+            <button onClick={() => rolarPara(secaoNoticiasRef)} style={{ background: 'none', border: 'none', padding: '10px', color: '#6b8e6f', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.95rem' }}>📰 Textos & Notícias</button>
+            <button onClick={() => rolarPara(secaoGaleriaRef)} style={{ background: 'none', border: 'none', padding: '10px', color: '#6b8e6f', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.95rem' }}>🖼️ Galeria</button>
+            <button onClick={() => rolarPara(secaoEnviarRef)} style={{ background: 'none', border: 'none', padding: '10px', color: '#d4a574', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.95rem' }}>📥 Compartilhar Saberes</button>
           </div>
 
           {/* Botão Admin Lateral */}
@@ -157,7 +158,7 @@ export default function App() {
             {user && user.email === 'paulet.ana1@gmail.com' ? (
               <button
                 onClick={() => setView('admin')}
-                style={{ backgroundColor: '#1a4a1f', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '4px', fontWeight: '600', cursor: 'pointer' }}
+                style={{ backgroundColor: '#6b8e6f', color: '#ffffff', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', boxShadow: '0 2px 4px rgba(107,142,111,0.2)' }}
               >
                 ⚙️ Painel Admin
               </button>
@@ -170,9 +171,9 @@ export default function App() {
                   });
                   if (error) console.error('Erro ao fazer login:', error.message);
                 }}
-                style={{ backgroundColor: 'transparent', color: '#1a4a1f', border: '1px solid #1a4a1f', borderRadius: '4px', padding: '6px 14px', fontWeight: '600', cursor: 'pointer' }}
+                style={{ backgroundColor: 'transparent', color: '#6b8e6f', border: '1px solid #6b8e6f', borderRadius: '6px', padding: '6px 14px', fontWeight: '600', cursor: 'pointer' }}
               >
-                🔒 Admin
+                🔒 Painel
               </button>
             )}
           </div>
@@ -180,43 +181,50 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Banner Principal de Entrada */}
+      {/* Banner Principal de Entrada Lado a Lado (Full Width) */}
       <header ref={secaoInicioRef} style={{
-        backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.2), rgba(26, 74, 31, 0.2)), url('/fundo-hero1.jpeg')",
+        backgroundImage: "linear-gradient(rgba(61, 40, 23, 0.35), rgba(61, 40, 23, 0.35)), url('/fundo-hero1.jpeg')",
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center center',
         backgroundColor: '#e3ece4',
         color: '#ffffff',
-        padding: '3rem 0',
+        padding: '5rem 0',
         textAlign: 'center',
-        minHeight: '220px',
+        minHeight: '280px',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        width: '100%',
+        boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.15)'
       }}>
+        <div style={{ maxWidth: '800px', padding: '0 1.5rem' }}>
+          <h1 style={{ fontWeight: '800', margin: '0 0 0.8rem 0', fontSize: '2.8rem', letterSpacing: '-0.02em', textShadow: '0 2px 4px rgba(0,0,0,0.4)' }}>Laboratório de Vivências Agroecológicas</h1>
+          <p style={{ margin: 0, color: '#f4ede4', fontSize: '1.2rem', fontWeight: '400', lineHeight: '1.5', textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>Transição sintrópica, segurança alimentar e preservação ambiental ativa comunitária</p>
+        </div>
       </header>
 
       {/* CONTEÚDO CORRIDO VERTICAL (TUDO EM UMA SÓ PÁGINA) */}
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 1rem', display: 'flex', flexDirection: 'column', gap: '5rem' }}>
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '5.5rem' }}>
 
         {/* SEÇÃO 1: VÍDEOS */}
-        <div ref={secaoVideosRef} style={{ scrollMarginTop: '80px' }}>
-          <h2 style={{ color: '#1a4a1f', borderBottom: '2px solid #e5e7eb', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>🎬 Vídeos Práticos e Aulas</h2>
-          {carregando ? <p style={{ color: '#666' }}>Carregando dados públicos...</p> : videos.length === 0 ? (
-            <p style={{ color: '#9ca3af' }}>Nenhum vídeo publicado no momento.</p>
+        <div ref={secaoVideosRef} style={{ scrollMarginTop: '100px' }}>
+          <h2 style={{ color: '#3d2817', borderBottom: '2px solid #6b8e6f', paddingBottom: '0.6rem', marginBottom: '2rem', fontSize: '1.8rem', fontWeight: '700' }}>🎬 Vídeos Práticos e Aulas</h2>
+          {carregando ? <p style={{ color: '#6b8e6f' }}>Carregando dados públicos...</p> : videos.length === 0 ? (
+            <p style={{ color: '#6b8e6f', opacity: 0.7 }}>Nenhum vídeo publicado no momento.</p>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.2rem' }}>
               {videos.map(item => (
-                <div key={item.id} style={{ backgroundColor: '#ffffff', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div key={item.id} style={{ backgroundColor: '#ffffff', padding: '1.8rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(61,40,23,0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', border: '1px solid rgba(61,40,23,0.06)' }}>
                   <div>
-                    <span style={{ backgroundColor: '#e2eee3', color: '#1a4a1f', padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>VÍDEO</span>
-                    <h3 style={{ marginTop: '1rem', fontSize: '1.25rem', color: '#111827' }}>{item.titulo}</h3>
-                    <p style={{ color: '#4b5563', fontSize: '0.95rem', lineHeight: '1.5' }}>{item.descricao}</p>
+                    <span style={{ backgroundColor: '#f4ede4', color: '#6b8e6f', padding: '4px 12px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '0.05em' }}>CONTEÚDO AUDIOVISUAL</span>
+                    <h3 style={{ marginTop: '1.2rem', fontSize: '1.35rem', color: '#3d2817', fontWeight: '700', marginBottom: '0.6rem' }}>{item.titulo}</h3>
+                    <p style={{ color: '#555555', fontSize: '0.95rem', lineHeight: '1.6', margin: 0 }}>{item.descricao}</p>
                   </div>
                   {item.url && (
-                    <a href={item.url} target="_blank" rel="noreferrer" style={{ marginTop: '1rem', display: 'block', backgroundColor: '#1a4a1f', color: '#fff', textDecoration: 'none', padding: '10px', borderRadius: '4px', textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                      Assistir Conteúdo 📺
+                    <a href={item.url} target="_blank" rel="noreferrer" style={{ marginTop: '1.6rem', display: 'block', backgroundColor: '#6b8e6f', color: '#ffffff', textDecoration: 'none', padding: '11px', borderRadius: '6px', textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem', boxShadow: '0 2px 4px rgba(107,142,111,0.15)' }}>
+                      Assistir Conteúdo Prático 📺
                     </a>
                   )}
                 </div>
@@ -226,22 +234,22 @@ export default function App() {
         </div>
 
         {/* SEÇÃO 2: ARTIGOS & PDFS */}
-        <div ref={secaoArtigosRef} style={{ scrollMarginTop: '80px' }}>
-          <h2 style={{ color: '#1a4a1f', borderBottom: '2px solid #e5e7eb', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>📄 Artigos Técnicos & PDFs</h2>
-          {carregando ? <p style={{ color: '#666' }}>Buscando publicações...</p> : artigos.length === 0 ? (
-            <p style={{ color: '#9ca3af' }}>Nenhum artigo disponível no momento.</p>
+        <div ref={secaoArtigosRef} style={{ scrollMarginTop: '100px' }}>
+          <h2 style={{ color: '#3d2817', borderBottom: '2px solid #6b8e6f', paddingBottom: '0.6rem', marginBottom: '2rem', fontSize: '1.8rem', fontWeight: '700' }}>📄 Artigos Técnicos & PDFs</h2>
+          {carregando ? <p style={{ color: '#6b8e6f' }}>Buscando publicações...</p> : artigos.length === 0 ? (
+            <p style={{ color: '#6b8e6f', opacity: 0.7 }}>Nenhum artigo disponível no momento.</p>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.2rem' }}>
               {artigos.map(item => (
-                <div key={item.id} style={{ backgroundColor: '#ffffff', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div key={item.id} style={{ backgroundColor: '#ffffff', padding: '1.8rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(61,40,23,0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', border: '1px solid rgba(61,40,23,0.06)' }}>
                   <div>
-                    <span style={{ backgroundColor: '#dbeafe', color: '#1e40af', padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>DOCUMENTO</span>
-                    <h3 style={{ marginTop: '1rem', fontSize: '1.25rem', color: '#111827' }}>{item.titulo}</h3>
-                    <p style={{ color: '#4b5563', fontSize: '0.95rem', lineHeight: '1.5' }}>{item.descricao}</p>
+                    <span style={{ backgroundColor: '#f4ede4', color: '#d4a574', padding: '4px 12px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '0.05em' }}>RECURSO CIENTÍFICO</span>
+                    <h3 style={{ marginTop: '1.2rem', fontSize: '1.35rem', color: '#3d2817', fontWeight: '700', marginBottom: '0.6rem' }}>{item.titulo}</h3>
+                    <p style={{ color: '#555555', fontSize: '0.95rem', lineHeight: '1.6', margin: 0 }}>{item.descricao}</p>
                   </div>
                   {item.url && (
-                    <a href={item.url} target="_blank" rel="noreferrer" style={{ marginTop: '1rem', display: 'block', backgroundColor: '#1e40af', color: '#fff', textDecoration: 'none', padding: '10px', borderRadius: '4px', textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                      Acessar Documento 📥
+                    <a href={item.url} target="_blank" rel="noreferrer" style={{ marginTop: '1.6rem', display: 'block', backgroundColor: '#d4a574', color: '#ffffff', textDecoration: 'none', padding: '11px', borderRadius: '6px', textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                      Acessar Documentação Técnica 📥
                     </a>
                   )}
                 </div>
@@ -251,20 +259,20 @@ export default function App() {
         </div>
 
         {/* SEÇÃO 3: TEXTOS & NOTÍCIAS */}
-        <div ref={secaoNoticiasRef} style={{ scrollMarginTop: '80px' }}>
-          <h2 style={{ color: '#1a4a1f', borderBottom: '2px solid #e5e7eb', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>📰 Textos Informativos e Notícias</h2>
-          {carregando ? <p style={{ color: '#666' }}>Buscando informativos...</p> : noticias.length === 0 ? (
-            <p style={{ color: '#9ca3af' }}>Nenhuma notícia registrada recentemente.</p>
+        <div ref={secaoNoticiasRef} style={{ scrollMarginTop: '100px' }}>
+          <h2 style={{ color: '#3d2817', borderBottom: '2px solid #6b8e6f', paddingBottom: '0.6rem', marginBottom: '2rem', fontSize: '1.8rem', fontWeight: '700' }}>📰 Textos Informativos e Notícias</h2>
+          {carregando ? <p style={{ color: '#6b8e6f' }}>Buscando informativos...</p> : noticias.length === 0 ? (
+            <p style={{ color: '#6b7280', opacity: 0.7 }}>Nenhuma notícia registrada recentemente.</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.2rem' }}>
               {noticias.map(item => (
-                <div key={item.id} style={{ backgroundColor: '#ffffff', padding: '2rem', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.04)' }}>
-                  <span style={{ backgroundColor: '#fef3c7', color: '#92400e', padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>INFORMATIVO</span>
-                  <h3 style={{ marginTop: '1rem', fontSize: '1.4rem', color: '#111827', marginBottom: '0.5rem' }}>{item.titulo}</h3>
-                  <p style={{ color: '#374151', fontSize: '1rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{item.descricao}</p>
+                <div key={item.id} style={{ backgroundColor: '#ffffff', padding: '2.2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(61,40,23,0.04)', border: '1px solid rgba(61,40,23,0.06)' }}>
+                  <span style={{ backgroundColor: '#f4ede4', color: '#3d2817', padding: '4px 12px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '0.05em' }}>MURAL INFORMATIVO</span>
+                  <h3 style={{ marginTop: '1.2rem', fontSize: '1.5rem', color: '#3d2817', marginBottom: '0.6rem', fontWeight: '700' }}>{item.titulo}</h3>
+                  <p style={{ color: '#444444', fontSize: '1.05rem', lineHeight: '1.65', whiteSpace: 'pre-wrap', margin: 0 }}>{item.descricao}</p>
                   {item.url && (
-                    <a href={item.url} target="_blank" rel="noreferrer" style={{ color: '#2563eb', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-block', marginTop: '0.5rem', fontWeight: 'bold' }}>
-                      🔗 Ver referência externa
+                    <a href={item.url} target="_blank" rel="noreferrer" style={{ color: '#6b8e6f', fontSize: '0.95rem', textDecoration: 'none', display: 'inline-block', marginTop: '1rem', fontWeight: 'bold' }}>
+                      🔗 Acessar referência externa associada
                     </a>
                   )}
                 </div>
@@ -274,16 +282,16 @@ export default function App() {
         </div>
 
         {/* SEÇÃO 4: GALERIA DE FOTOS MURAL */}
-        <div ref={secaoGaleriaRef} style={{ scrollMarginTop: '80px' }}>
-          <h2 style={{ color: '#1a4a1f', borderBottom: '2px solid #e5e7eb', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>🖼️ Galeria e Registros Fotográficos</h2>
-          {carregando ? <p style={{ color: '#666' }}>Renderizando imagens...</p> : galeria.length === 0 ? (
-            <p style={{ color: '#9ca3af' }}>Nenhuma foto postada no mural ainda.</p>
+        <div ref={secaoGaleriaRef} style={{ scrollMarginTop: '100px' }}>
+          <h2 style={{ color: '#3d2817', borderBottom: '2px solid #6b8e6f', paddingBottom: '0.6rem', marginBottom: '2rem', fontSize: '1.8rem', fontWeight: '700' }}>🖼️ Galeria de Fotos e Vivências</h2>
+          {carregando ? <p style={{ color: '#6b8e6f' }}>Renderizando imagens...</p> : galeria.length === 0 ? (
+            <p style={{ color: '#6b8e6f', opacity: 0.7 }}>Nenhuma foto postada no mural ainda.</p>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.8rem' }}>
               {galeria.map(foto => (
-                <div key={foto.id} style={{ backgroundColor: '#ffffff', padding: '1rem', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
-                  <img src={foto.url} alt={foto.titulo} style={{ width: '100%', height: '170px', objectFit: 'cover', borderRadius: '6px', backgroundColor: '#e5e7eb' }} />
-                  <p style={{ marginTop: '0.8rem', marginBottom: 0, fontWeight: 'bold', color: '#374151', fontSize: '0.95rem' }}>{foto.titulo}</p>
+                <div key={foto.id} style={{ backgroundColor: '#ffffff', padding: '1rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(61,40,23,0.04)', overflow: 'hidden', border: '1px solid rgba(61,40,23,0.06)' }}>
+                  <img src={foto.url} alt={foto.titulo} style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '8px', backgroundColor: '#e5e7eb' }} />
+                  <p style={{ marginTop: '0.9rem', marginBottom: 0, fontWeight: '700', color: '#3d2817', fontSize: '0.95rem', textAlign: 'center' }}>{foto.titulo}</p>
                 </div>
               ))}
             </div>
@@ -291,8 +299,7 @@ export default function App() {
         </div>
 
         {/* SEÇÃO 5: FORMULÁRIO DE ENVIO DA COMUNIDADE */}
-        <div ref={secaoEnviarRef} style={{ scrollMarginTop: '80px', backgroundColor: '#ffffff', padding: '2.5rem 2rem', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.04)' }}>
-          <h2 style={{ color: '#1a4a1f', marginTop: 0, marginBottom: '1.5rem', fontSize: '1.6rem' }}>📥 Compartilhe Conosco um Novo Conteúdo</h2>
+        <div ref={secaoEnviarRef} style={{ scrollMarginTop: '100px', backgroundColor: '#ffffff', padding: '3rem 2.5rem', borderRadius: '16px', boxShadow: '0 6px 18px rgba(61,40,23,0.04)', border: '1px solid rgba(61,40,23,0.06)' }}>
           <FormularioEnvio />
         </div>
 
