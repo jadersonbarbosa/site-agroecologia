@@ -33,7 +33,7 @@ export default function App() {
 
       {/* Banner Principal com a Imagem de Fundo Ajustada */}
       <header style={{
-        backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.2), rgba(26, 74, 31, 0.2)), url('/fundo-hero.jpeg')",
+        backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.2), rgba(26, 74, 31, 0.2)), url('/fundo-hero1.jpeg')",
         backgroundSize: 'contain',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center center',
