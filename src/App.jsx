@@ -86,7 +86,7 @@ export default function App() {
       {/* Banner Principal */}
       <header style={{
         backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.2), rgba(26, 74, 31, 0.2)), url('/fundo-hero1.jpeg')",
-        backgroundSize: 'contain',
+        backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center center',
         backgroundColor: '#e3ece4',
