@@ -17,7 +17,7 @@ export default function App() {
       setUser(logado);
 
       // Se detectou o admin logado ao carregar, muda a tela direto pro painel!
-      if (logado && logado.email === 'jadersonaraujo@gmail.com') {
+      if (logado && logado.email === 'paulet.ana1@gmail.com') {
         setView('admin');
       }
     });
