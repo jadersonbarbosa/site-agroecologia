@@ -1,22 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from './lib/supabaseClient';
 
 export default function AdminPanel({ setView }) {
-  const [adminTab, setAdminTab] = useState('alimentar'); // Começa na listagem
   const [dados, setDados] = useState([]);
   const [galeria, setGaleria] = useState([]);
   const [carregando, setCarregando] = useState(false);
 
-  // Estados do Formulário de Conteúdo (Vídeos/Artigos)
+  // Criando referências (Refs) para rolar a tela até cada seção
+  const secaoAdicionarRef = useRef(null);
+  const secaoListaRef = useRef(null);
+  const secaoGaleriaRef = useRef(null);
+
+  // Estados do Formulário de Conteúdo (Vídeos / Artigos / Textos)
   const [idEditando, setIdEditando] = useState(null);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [url, setUrl] = useState('');
-  const [tipo, setTipo] = useState('video');
+  const [tipo, setTipo] = useState('video'); // 'video', 'artigo' ou 'texto'
 
   // Estados do Formulário da Galeria
   const [tituloFoto, setTituloFoto] = useState('');
   const [urlFoto, setUrlFoto] = useState('');
+
+  // Função auxiliar para rolar a tela de forma suave
+  const rolarPara = (ref) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   // -------------------------------------------------------------------------
   // 1. CARREGAMENTO DOS DADOS (BANCO DE DADOS)
@@ -25,11 +34,11 @@ export default function AdminPanel({ setView }) {
     if (!supabase || typeof supabase.from !== 'function') return;
     try {
       setCarregando(true);
-      // Busca Vídeos e Artigos
+      // Busca Vídeos, Artigos e Textos
       const resConteudos = await supabase.from('videos').select('*').order('created_at', { ascending: false });
       setDados(resConteudos.data || []);
 
-      // Busca Fotos da Galeria (Se não tiver a tabela criada ainda, ele não quebra)
+      // Busca Fotos da Galeria
       const resGaleria = await supabase.from('galeria').select('*').order('created_at', { ascending: false });
       setGaleria(resGaleria.data || []);
     } catch (err) {
@@ -44,7 +53,7 @@ export default function AdminPanel({ setView }) {
   }, []);
 
   // -------------------------------------------------------------------------
-  // 2. AÇÕES DE CONTEÚDO (VÍDEOS / ARTIGOS)
+  // 2. AÇÕES DE CONTEÚDO (SALVAR / ATUALIZAR)
   // -------------------------------------------------------------------------
   const handleSalvarConteudo = async (e) => {
     e.preventDefault();
@@ -65,8 +74,8 @@ export default function AdminPanel({ setView }) {
       }
 
       limparFormularioConteudo();
-      setAdminTab('alimentar');
       buscarDados();
+      rolarPara(secaoListaRef); // Rola de volta para a lista após salvar
     } catch (err) {
       alert("Erro ao salvar: " + err.message);
     } finally {
@@ -94,7 +103,7 @@ export default function AdminPanel({ setView }) {
     setDescricao(item.descricao || '');
     setUrl(item.url || '');
     setTipo(item.tipo || 'video');
-    setAdminTab('enviar'); // Abre a aba de formulário preenchida
+    rolarPara(secaoAdicionarRef); // Rola a página para o formulário lá no topo
   };
 
   const limparFormularioConteudo = () => {
@@ -122,7 +131,7 @@ export default function AdminPanel({ setView }) {
       setUrlFoto('');
       buscarDados();
     } catch (err) {
-      alert("Erro ao subir foto: " + err.message + "\n(Verifique se criou a tabela 'galeria' no Supabase)");
+      alert("Erro ao subir foto: " + err.message);
     } finally {
       setCarregando(false);
     }
@@ -145,148 +154,162 @@ export default function AdminPanel({ setView }) {
   return (
     <div style={{ display: 'flex', minHeight: 'calc(100vh - 70px)', backgroundColor: '#111827' }}>
 
-      {/* Menu Lateral Esquerdo */}
-      <aside style={{ width: '260px', backgroundColor: '#1f2937', padding: '1.5rem 1rem', borderRight: '1px solid #374151' }}>
+      {/* Menu Lateral Esquerdo Fixo como Navegador / Atalho */}
+      <aside style={{ width: '260px', backgroundColor: '#1f2937', padding: '1.5rem 1rem', borderRight: '1px solid #374151', position: 'sticky', top: '70px', height: 'calc(100vh - 70px)' }}>
+        <p style={{ color: '#9ca3af', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '1rem', paddingLeft: '12px' }}>Navegar no Painel</p>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <li>
             <button
-              onClick={() => { buscarDados(); setAdminTab('alimentar'); }}
-              style={{ width: '100%', textAlign: 'left', background: adminTab === 'alimentar' ? '#10b981' : 'none', color: '#fff', border: 'none', padding: '12px', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
+              onClick={() => rolarPara(secaoAdicionarRef)}
+              style={{ width: '100%', textAlign: 'left', background: 'none', color: '#fff', border: 'none', padding: '12px', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background 0.2s' }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#374151'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+            >
+              ➕ {idEditando ? '📝 Editando Agora' : '➕ Adicionar Vídeo/Artigo/Texto'}
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => rolarPara(secaoListaRef)}
+              style={{ width: '100%', textAlign: 'left', background: 'none', color: '#fff', border: 'none', padding: '12px', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background 0.2s' }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#374151'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
             >
               👁️ Visualizar / Editar Lista
             </button>
           </li>
           <li>
             <button
-              onClick={() => { limparFormularioConteudo(); setAdminTab('enviar'); }}
-              style={{ width: '100%', textAlign: 'left', background: adminTab === 'enviar' ? '#10b981' : 'none', color: '#fff', border: 'none', padding: '12px', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
+              onClick={() => rolarPara(secaoGaleriaRef)}
+              style={{ width: '100%', textAlign: 'left', background: 'none', color: '#fff', border: 'none', padding: '12px', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background 0.2s' }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#374151'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
             >
-              ➕ {idEditando ? '📝 Editando Conteúdo' : '➕ Adicionar Vídeo/Artigo'}
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => setAdminTab('galeria')}
-              style={{ width: '100%', textAlign: 'left', background: adminTab === 'galeria' ? '#10b981' : 'none', color: '#fff', border: 'none', padding: '12px', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
-            >
-              🖼️ Galeria de Fotos
+              🖼️ Gerenciar Galeria de Fotos
             </button>
           </li>
         </ul>
       </aside>
 
-      {/* Área Central de Trabalho */}
-      <section style={{ flex: 1, padding: '2rem', backgroundColor: '#111827', color: '#fff', overflowY: 'auto' }}>
+      {/* ÁREA CENTRAL ÚNICA CORRIDA (TUDO EM UM LUGAR SÓ) */}
+      <section style={{ flex: 1, padding: '2rem 3rem', backgroundColor: '#111827', color: '#fff', display: 'flex', flexDirection: 'column', gap: '4rem' }}>
 
-        {/* ABA 1: VISUALIZAR E EDITAR LISTA */}
-        {adminTab === 'alimentar' && (
-          <div>
-            <h3 style={{ color: '#10b981', marginBottom: '1.5rem' }}>📋 Lista de Conteúdos Gravados no Banco</h3>
-            {carregando ? (
-              <p style={{ color: '#10b981' }}>Processando informações...</p>
-            ) : dados.length === 0 ? (
-              <p style={{ color: '#9ca3af' }}>Nenhum item localizado na tabela 'videos'.</p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {dados.map((item) => (
-                  <div key={item.id} style={{ backgroundColor: '#1f2937', padding: '1.2rem', borderRadius: '8px', border: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <span style={{ backgroundColor: item.tipo === 'video' ? '#065f46' : '#1e3a8a', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>
-                        {item.tipo === 'video' ? 'VIDEO' : 'ARTIGO'}
+        {/* SEÇÃO 1: FORMULÁRIO DE CADASTRO / EDIÇÃO */}
+        <div ref={secaoAdicionarRef} style={{ maxWidth: '700px', backgroundColor: '#1f2937', padding: '2rem', borderRadius: '8px', border: '1px solid #374151', scrollMarginTop: '2rem' }}>
+          <h3 style={{ color: '#10b981', marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {idEditando ? '📝 Editando Conteúdo Selecionado' : '➕ Cadastrar Novo Recurso no Site'}
+          </h3>
+          <form onSubmit={handleSalvarConteudo} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Selecione o Destino do Conteúdo</label>
+              <select value={tipo} onChange={(e) => setTipo(e.target.value)} style={{ padding: '12px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563', fontWeight: '500' }}>
+                <option value="video">🎥 Aba: Vídeos</option>
+                <option value="artigo">📄 Aba: Artigos & PDFs</option>
+                <option value="texto">📰 Aba: Textos & Notícias</option>
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Nome / Título</label>
+              <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} style={{ padding: '10px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563' }} placeholder="Ex: Técnicas de Manejo de Solo" />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Endereço URL (Link completo)</label>
+              <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} style={{ padding: '10px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563' }} placeholder="https://..." />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Resumo / Descrição Explicativa</label>
+              <textarea rows="3" value={descricao} onChange={(e) => setDescricao(e.target.value)} style={{ padding: '10px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563', resize: 'none' }} placeholder="Descreva brevemente o assunto..." />
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+              <button type="submit" style={{ flex: 1, backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem' }}>
+                {idEditando ? 'Salvar Alterações' : 'Gravar no Banco de Dados'}
+              </button>
+              {idEditando && (
+                <button type="button" onClick={limparFormularioConteudo} style={{ backgroundColor: '#4b5563', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', cursor: 'pointer' }}>Cancelar Edição</button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        <hr style={{ border: '0', borderTop: '1px solid #374151', margin: 0 }} />
+
+        {/* SEÇÃO 2: VISUALIZAR / EDITAR LISTA COMPLETA */}
+        <div ref={secaoListaRef} style={{ scrollMarginTop: '2rem' }}>
+          <h3 style={{ color: '#10b981', marginBottom: '1.5rem' }}>📋 Lista de Conteúdos Gravados no Banco (Vídeos, Artigos e Textos)</h3>
+          {carregando ? (
+            <p style={{ color: '#10b981' }}>Sincronizando dados...</p>
+          ) : dados.length === 0 ? (
+            <p style={{ color: '#9ca3af' }}>Nenhum item localizado na tabela do banco.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {dados.map((item) => {
+                // Define a cor da tag baseado no tipo
+                let tagCor = '#065f46';
+                if (item.tipo === 'artigo') tagCor = '#1e3a8a';
+                if (item.tipo === 'texto') tagCor = '#92400e';
+
+                return (
+                  <div key={item.id} style={{ backgroundColor: '#1f2937', padding: '1.2rem', borderRadius: '8px', border: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1.5rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ backgroundColor: tagCor, color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                        {item.tipo === 'video' ? '🎥 VIDEO' : item.tipo === 'artigo' ? '📄 ARTIGO' : '📰 TEXTO / NOTÍCIA'}
                       </span>
-                      <h4 style={{ margin: '0.5rem 0 0.2rem 0', fontSize: '1.1rem' }}>{item.titulo}</h4>
-                      <p style={{ margin: 0, color: '#9ca3af', fontSize: '0.9rem' }}>{item.descricao || 'Sem descrição.'}</p>
+                      <h4 style={{ margin: '0.6rem 0 0.2rem 0', fontSize: '1.1rem', color: '#fff' }}>{item.titulo}</h4>
+                      <p style={{ margin: 0, color: '#9ca3af', fontSize: '0.9rem' }}>{item.descricao || 'Sem descrição inserida.'}</p>
+                      {item.url && <a href={item.url} target="_blank" rel="noreferrer" style={{ color: '#60a5fa', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-block', marginTop: '0.4rem' }}>🔗 Link de Origem</a>}
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button onClick={() => iniciarEdicao(item)} style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>📝 Editar</button>
                       <button onClick={() => handleExcluirConteudo(item.id)} style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>🗑️ Deletar</button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-        {/* ABA 2: ADICIONAR / SALVAR EDIÇÃO */}
-        {adminTab === 'enviar' && (
-          <div style={{ maxWidth: '600px', backgroundColor: '#1f2937', padding: '2rem', borderRadius: '8px', border: '1px solid #374151' }}>
-            <h3 style={{ color: '#10b981', marginTop: 0, marginBottom: '1.5rem' }}>
-              {idEditando ? '📝 Atualizar Informações' : '➕ Cadastrar Novo Recurso'}
-            </h3>
-            <form onSubmit={handleSalvarConteudo} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ color: '#9ca3af' }}>Selecione o Canal</label>
-                <select value={tipo} onChange={(e) => setTipo(e.target.value)} style={{ padding: '10px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563' }}>
-                  <option value="video">🎥 Vídeo</option>
-                  <option value="artigo">📄 Artigo / PDF</option>
-                </select>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ color: '#9ca3af' }}>Nome / Título</label>
-                <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} style={{ padding: '10px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563' }} placeholder="Título visível ao usuário" />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ color: '#9ca3af' }}>Endereço URL (Link completo)</label>
-                <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} style={{ padding: '10px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563' }} placeholder="https://youtube.com/..." />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ color: '#9ca3af' }}>Resumo explicativo</label>
-                <textarea rows="3" value={descricao} onChange={(e) => setDescricao(e.target.value)} style={{ padding: '10px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563', resize: 'none' }} placeholder="Breve resumo..." />
-              </div>
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-                <button type="submit" style={{ flex: 1, backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                  {idEditando ? 'Salvar Alterações' : 'Gravar no Banco'}
-                </button>
-                {idEditando && (
-                  <button type="button" onClick={() => { limparFormularioConteudo(); setAdminTab('alimentar'); }} style={{ backgroundColor: '#4b5563', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', cursor: 'pointer' }}>Cancelar</button>
-                )}
-              </div>
-            </form>
-          </div>
-        )}
+        <hr style={{ border: '0', borderTop: '1px solid #374151', margin: 0 }} />
 
-        {/* ABA 3: GERENCIAMENTO COMPLETO DA GALERIA */}
-        {adminTab === 'galeria' && (
-          <div>
-            <h3 style={{ color: '#10b981', marginBottom: '1.5rem' }}>🖼️ Painel de Controle da Galeria</h3>
+        {/* SEÇÃO 3: GERENCIAMENTO COMPLETO DA GALERIA */}
+        <div ref={secaoGaleriaRef} style={{ scrollMarginTop: '2rem' }}>
+          <h3 style={{ color: '#10b981', marginBottom: '1.5rem' }}>🖼️ Painel de Controle e Moderação da Galeria</h3>
 
-            {/* Formulário interno para criar novas fotos */}
-            <form onSubmit={handleSalvarFoto} style={{ backgroundColor: '#1f2937', padding: '1.5rem', borderRadius: '8px', border: '1px solid #374151', display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '2rem' }}>
-              <div style={{ flex: 1, minWidth: '200px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Legenda da Foto</label>
-                <input type="text" value={tituloFoto} onChange={(e) => setTituloFoto(e.target.value)} placeholder="Ex: Mutirão de Plantio" style={{ padding: '10px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563' }} />
-              </div>
-              <div style={{ flex: 2, minWidth: '250px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Link Direto da Imagem (URL)</label>
-                <input type="url" value={urlFoto} onChange={(e) => setUrlFoto(e.target.value)} placeholder="https://..." style={{ padding: '10px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563' }} />
-              </div>
-              <button type="submit" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                ➕ Adicionar Imagem
-              </button>
-            </form>
+          {/* Formulário para criar novas fotos */}
+          <form onSubmit={handleSalvarFoto} style={{ backgroundColor: '#1f2937', padding: '1.5rem', borderRadius: '8px', border: '1px solid #374151', display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '2rem' }}>
+            <div style={{ flex: 1, minWidth: '200px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Legenda da Imagem</label>
+              <input type="text" value={tituloFoto} onChange={(e) => setTituloFoto(e.target.value)} placeholder="Ex: Área de Plantio Coberta" style={{ padding: '10px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563' }} />
+            </div>
+            <div style={{ flex: 2, minWidth: '250px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Link Direto da Imagem (URL hospedada)</label>
+              <input type="url" value={urlFoto} onChange={(e) => setUrlFoto(e.target.value)} placeholder="https://images.unsplash.com/..." style={{ padding: '10px', borderRadius: '4px', backgroundColor: '#374151', color: '#fff', border: '1px solid #4b5563' }} />
+            </div>
+            <button type="submit" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+              ➕ Publicar Foto
+            </button>
+          </form>
 
-            {/* Listagem em Grade com Opção de Excluir Foto */}
-            <h4 style={{ marginBottom: '1rem', color: '#9ca3af' }}>Fotos Ativas no Site Público:</h4>
-            {galeria.length === 0 ? (
-              <p style={{ color: '#6b7280' }}>Nenhuma foto registrada na tabela 'galeria'.</p>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                {galeria.map((foto) => (
-                  <div key={foto.id} style={{ backgroundColor: '#1f2937', borderRadius: '8px', border: '1px solid #374151', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                    <img src={foto.url} alt={foto.titulo} style={{ width: '100%', height: '120px', objectFit: 'cover', backgroundColor: '#374151' }} />
-                    <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, justifyContent: 'space-between' }}>
-                      <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '500', color: '#fff', lineClamp: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{foto.titulo}</p>
-                      <button onClick={() => handleExcluirFoto(foto.id)} style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '6px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', width: '100%', fontWeight: 'bold' }}>
-                        🗑️ Remover Foto
-                      </button>
-                    </div>
+          {/* Listagem em Grade com Opção de Excluir Foto */}
+          <h4 style={{ marginBottom: '1rem', color: '#9ca3af' }}>Imagens em Exibição no Site Público:</h4>
+          {galeria.length === 0 ? (
+            <p style={{ color: '#6b7280' }}>Nenhuma imagem cadastrada no álbum.</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.5rem' }}>
+              {galeria.map((foto) => (
+                <div key={foto.id} style={{ backgroundColor: '#1f2937', borderRadius: '8px', border: '1px solid #374151', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                  <img src={foto.url} alt={foto.titulo} style={{ width: '100%', height: '140px', objectFit: 'cover', backgroundColor: '#374151' }} />
+                  <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, justifyContent: 'space-between' }}>
+                    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '500', color: '#fff', lineClamp: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{foto.titulo}</p>
+                    <button onClick={() => handleExcluirFoto(foto.id)} style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '8px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', width: '100%', fontWeight: 'bold' }}>
+                      🗑️ Remover da Galeria
+                    </button>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
       </section>
 
