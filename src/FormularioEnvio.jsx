@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-
-// Se você usa uma instância configurada do Supabase no seu projeto, importe-a aqui
-// import { supabase } from '../lib/supabaseClient';
+import { supabase } from './lib/supabaseClient'; // Conexão direta ativa
 
 export default function FormularioEnvio() {
   const [formData, setFormData] = useState({
     nome_autor: '',
     email_autor: '',
     titulo: '',
-    tipo: 'artigo',
-    conteudo: ''
+    tipo: 'artigo', // 'artigo', 'texto', ou 'video'
+    conteudo: ''    // Link ou texto descritivo
   });
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
@@ -24,24 +22,41 @@ export default function FormularioEnvio() {
     setLoading(true);
     setStatusMsg({ type: '', text: '' });
 
-    try {
-      // Aqui entra a chamada do Supabase integrada à lógica do Antigravity
-      // const { error } = await supabase.from('envios_publico').insert([formData]);
+    if (!formData.titulo.trim()) {
+      setLoading(false);
+      return setStatusMsg({ type: 'error', text: 'O título do conteúdo é obrigatório!' });
+    }
 
-      // Simulação de sucesso para teste local
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Ajustando o tipo 'sugestao_video' para 'video' para bater com o banco de dados
+      const tipoCorreto = formData.tipo === 'sugestao_video' ? 'video' : formData.tipo;
+
+      // Mapeando os campos para a tabela correta ('videos') que o Admin gerencia
+      const payload = {
+        titulo: formData.titulo,
+        tipo: tipoCorreto,
+        // Se for um texto/notícia, o conteúdo vai para a descrição. Se for link, vai para a URL.
+        descricao: tipoCorreto === 'texto' ? formData.conteudo : `Enviado por: ${formData.nome_autor} (${formData.email_autor}). \n\nResumo: ${formData.conteudo}`,
+        url: tipoCorreto !== 'texto' ? formData.conteudo.trim() : null
+      };
+
+      // Inserção real no banco de dados do Supabase
+      const { error } = await supabase.from('videos').insert([payload]);
+
+      if (error) throw error;
 
       setStatusMsg({
         type: 'success',
-        text: 'Obrigado! Seu conteúdo foi enviado com sucesso e está aguardando moderação.'
+        text: 'Obrigado! Seu conteúdo foi enviado com sucesso e já está disponível no painel administrativo para visualização/edição.'
       });
 
-      // Limpa o formulário após o envio
+      // Limpa o formulário após o sucesso
       setFormData({ nome_autor: '', email_autor: '', titulo: '', tipo: 'artigo', conteudo: '' });
     } catch (err) {
+      console.error("Erro ao enviar dados:", err.message);
       setStatusMsg({
         type: 'error',
-        text: 'Ops! Ocorreu um erro ao enviar. Tente novamente mais tarde.'
+        text: `Erro ao enviar: ${err.message}. Verifique a conexão com o banco.`
       });
     } finally {
       setLoading(false);
@@ -95,31 +110,32 @@ export default function FormularioEnvio() {
               name="tipo" value={formData.tipo}
               onChange={handleChange} style={styles.input}
             >
-              <option value="artigo">Artigo / PDF</option>
-              <option value="texto">Texto Informativo</option>
+              <option value="artigo">Artigo / PDF (Link)</option>
+              <option value="texto">Texto Informativo / Notícia</option>
               <option value="sugestao_video">Sugestão de Vídeo (Link)</option>
             </select>
           </div>
         </div>
 
         <div style={styles.group}>
-          <label style={styles.label}>Conteúdo ou Link da Mídia</label>
+          <label style={styles.label}>
+            {formData.tipo === 'texto' ? 'Escreva o texto informativo ou notícia completo:' : 'Cole aqui o Link da mídia/artigo:'}
+          </label>
           <textarea
             name="conteudo" value={formData.conteudo} onChange={handleChange} required
             style={{ ...styles.input, height: '120px', resize: 'vertical' }}
-            placeholder="Cole aqui o seu texto completo, o link do seu artigo científico ou o link do vídeo do YouTube..."
+            placeholder={formData.tipo === 'texto' ? "Escreva o texto aqui..." : "https://link-do-seu-conteudo.com"}
           />
         </div>
 
         <button type="submit" disabled={loading} style={styles.button}>
-          {loading ? 'Enviando...' : 'Enviar para Moderação'}
+          {loading ? 'Enviando ao banco...' : 'Enviar para Moderação'}
         </button>
       </form>
     </div>
   );
 }
 
-// Estilos inline básicos simulando um design limpo e moderno voltado para Agroecologia
 const styles = {
   container: { maxWidth: '700px', margin: '2rem auto', padding: '2rem', borderRadius: '12px', backgroundColor: '#fdfdfd', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e0e0e0', fontFamily: 'system-ui, sans-serif' },
   title: { fontSize: '1.6rem', color: '#1a4a1f', margin: '0 0 0.5rem 0' },
