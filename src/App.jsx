@@ -13,12 +13,24 @@ export default function App() {
   useEffect(() => {
     // Pega a sessão ativa assim que o site carrega
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      const logado = session?.user ?? null;
+      setUser(logado);
+
+      // Se detectou o admin logado ao carregar, muda a tela direto pro painel!
+      if (logado && logado.email === 'paulet.ana1@gmail.com') {
+        setView('admin');
+      }
     });
 
-    // Monitoriza se o utilizador fez login ou logout
+    // Monitora se o usuário fez login ou logout em tempo real
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const logado = session?.user ?? null;
+      setUser(logado);
+
+      // Se acabou de fazer login e é o admin, muda a view automaticamente
+      if (_event === 'SIGNED_IN' && logado && logado.email === 'paulet.ana1@gmail.com') {
+        setView('admin');
+      }
     });
 
     return () => subscription.unsubscribe();
