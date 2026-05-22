@@ -85,13 +85,13 @@ export default function App() {
 
       {/* Banner Principal */}
       <header style={{
-        backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.2), rgba(26, 74, 31, 0.2)), url('/fundo-hero.jpeg')",
+        backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.2), rgba(26, 74, 31, 0.2)), url('/fundo-hero1.jpeg')",
         backgroundSize: 'contain',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center center',
         backgroundColor: '#e3ece4',
         color: '#ffffff',
-        padding: '4rem 0',
+        padding: '2rem 0',
         textAlign: 'center',
         minHeight: '150px'
       }}>
