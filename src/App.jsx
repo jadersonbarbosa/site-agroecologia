@@ -58,7 +58,7 @@ export default function App() {
       {/* CABEÇALHO / HERO */}
       <header style={styles.hero}>
         <div className="container" style={styles.heroContent}>
-          <h1 style={styles.heroTitle}>🌱 Aplicação Agroecológica</h1>
+          <h1 style={styles.heroTitle}> {/*🌱 Aplicação Agroecológica*/}</h1>
           <p style={styles.heroSubtitle}>Conhecimento compartilhado e ferramentas práticas para um mundo sustentável.</p>
           <button onClick={() => setView('admin')} className="btn" style={{ backgroundColor: 'transparent', border: '2px solid white', marginTop: '1rem' }}>
             🔒 Acessar Painel Admin
@@ -130,7 +130,14 @@ export default function App() {
 }
 
 const styles = {
-  hero: { backgroundColor: '#1a4a1f', color: '#ffffff', padding: '4rem 0', textAlign: 'center' },
+  hero: {
+    backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.85), rgba(26, 74, 31, 0.85)), url('/logo aplicação agroecologica.jpg')",
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    color: '#ffffff',
+    padding: '4rem 0',
+    textAlign: 'center'
+  },
   heroTitle: { fontSize: '2.5rem', marginBottom: '0.5rem' },
   heroSubtitle: { fontSize: '1.1rem', opacity: '0.9', maxWidth: '600px', margin: '0 auto' },
   navbar: { backgroundColor: '#ffffff', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', sticky: 'top', position: 'sticky', top: 0, zIndex: 100 },
