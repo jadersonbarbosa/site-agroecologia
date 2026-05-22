@@ -39,7 +39,7 @@ export default function App() {
         backgroundPosition: 'center center',
         backgroundColor: '#e3ece4',
         color: '#ffffff',
-        padding: '8rem 0',
+        padding: '4rem 0',
         textAlign: 'center',
         minHeight: '250px'
       }}>
