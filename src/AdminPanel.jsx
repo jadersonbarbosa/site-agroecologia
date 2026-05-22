@@ -4,9 +4,9 @@ import { supabase } from './lib/supabaseClient';
 // ==========================================
 // CONFIGURAÇÃO: AJUSTE OS NOMES DAS SUAS TABELAS AQUI
 // ==========================================
-const NOME_TABELA_CONTEUDO = 'videos'; // <-- SE REJEITAR, TROQUE PELO NOME DA SUA TABELA (ex: 'conteudos')
+const NOME_TABELA_CONTEUDO = 'conteudos';
 const NOME_TABELA_GALERIA = 'galeria';
-const NOME_BUCKET_STORAGE = 'galeria'; // Nome do bucket criado no Storage do Supabase
+const NOME_BUCKET_STORAGE = 'galeria';
 
 export default function AdminPanel({ setView }) {
   const [dados, setDados] = useState([]);
@@ -35,7 +35,7 @@ export default function AdminPanel({ setView }) {
   };
 
   // -------------------------------------------------------------------------
-  // 1. CARREGAMENTO DOS DADOS
+  // 1. CARREGAMENTO DOS DADOS (VÍDEOS, ARTIGOS, TEXTOS E GALERIA)
   // -------------------------------------------------------------------------
   const buscarDados = async () => {
     if (!supabase || typeof supabase.from !== 'function') return;
@@ -47,6 +47,7 @@ export default function AdminPanel({ setView }) {
       setDados(resConteudos.data || []);
 
       const resGaleria = await supabase.from(NOME_TABELA_GALERIA).select('*').order('created_at', { ascending: false });
+      if (resGaleria.error) console.error("Erro galeria:", resGaleria.error.message);
       setGaleria(resGaleria.data || []);
     } catch (err) {
       console.error("Erro geral ao carregar dados:", err.message);
@@ -60,13 +61,7 @@ export default function AdminPanel({ setView }) {
   }, []);
 
   // -------------------------------------------------------------------------
-  // 2. UPLOAD DE IMAGEM DIRETO PARA O STORAGE DO SUPABASE
-  // -------------------------------------------------------------------------
-  // -------------------------------------------------------------------------
-  // UPLOAD DE IMAGEM ADAPTADO (À PROVA DE FALHAS DE INITIALIZATION)
-  // -------------------------------------------------------------------------
-  // -------------------------------------------------------------------------
-  // UPLOAD DE IMAGEM CORRIGIDO COM FORMDATA (EVITA DATACORRUPTED 400)
+  // 2. UPLOAD DE IMAGEM DA GALERIA (MÉTODO FORMDATA ESTÁVEL)
   // -------------------------------------------------------------------------
   const handleUploadFoto = async (e) => {
     const file = e.target.files[0];
@@ -75,42 +70,32 @@ export default function AdminPanel({ setView }) {
     try {
       setSubindoImagem(true);
 
-      // Gera um nome único para o arquivo baseado no timestamp
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
 
-      // Puxa as credenciais automáticas do seu cliente Supabase
       const supabaseUrl = supabase.supabaseUrl || "https://sua-url-do-supabase.supabase.co";
       const supabaseKey = supabase.supabaseKey || "sua-chave-anon-public-aqui";
-
-      // Monta a URL exata do endpoint do seu bucket
       const urlUpload = `${supabaseUrl}/storage/v1/object/${NOME_BUCKET_STORAGE}/${fileName}`;
 
-      // Monta o FormData estruturado para arquivos binários
       const formData = new FormData();
       formData.append('cacheControl', '3600');
       formData.append('file', file);
 
-      // Envia a requisição limpa
       const response = await fetch(urlUpload, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${supabaseKey}`,
           'apikey': supabaseKey
-          // NOTA: Não defina 'Content-Type' aqui manualmente. 
-          // O navegador define o boundary correto automaticamente ao receber o FormData!
         },
         body: formData
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Erro interno no servidor do Storage");
+        throw new Error(errorData.message || "Erro no Storage");
       }
 
-      // Constrói o link público final que será gravado no banco de dados
       const publicUrl = `${supabaseUrl}/storage/v1/object/public/${NOME_BUCKET_STORAGE}/${fileName}`;
-
       setUrlFoto(publicUrl);
       alert("Imagem carregada com sucesso!");
     } catch (error) {
@@ -122,20 +107,19 @@ export default function AdminPanel({ setView }) {
   };
 
   // -------------------------------------------------------------------------
-  // 3. AÇÕES DE CONTEÚDO (VÍDEOS / ARTIGOS / TEXTOS)
+  // 3. SALVAR / ATUALIZAR CONTEÚDO (VÍDEOS, ARTIGOS E TEXTOS)
   // -------------------------------------------------------------------------
   const handleSalvarConteudo = async (e) => {
     e.preventDefault();
     if (!titulo.trim()) return alert("O título é obrigatório!");
 
-    // URL só é obrigatória se o tipo for vídeo ou artigo
     if ((tipo === 'video' || tipo === 'artigo') && !url.trim()) {
       return alert(`Para o tipo ${tipo}, preencher a URL é obrigatório.`);
     }
 
     try {
       setCarregando(true);
-      const payload = { titulo, descricao, url: url.trim() || null, tipo };
+      const payload = { titulo: titulo.trim(), descricao: descricao.trim(), url: url.trim() || null, tipo };
 
       if (idEditando) {
         const { error } = await supabase.from(NOME_TABELA_CONTEUDO).update(payload).eq('id', idEditando);
@@ -151,7 +135,7 @@ export default function AdminPanel({ setView }) {
       buscarDados();
       rolarPara(secaoListaRef);
     } catch (err) {
-      alert("Erro ao salvar: " + err.message + "\nSe o erro persistir, verifique a variável NOME_TABELA_CONTEUDO no topo do código.");
+      alert("Erro ao salvar: " + err.message);
     } finally {
       setCarregando(false);
     }
@@ -193,19 +177,24 @@ export default function AdminPanel({ setView }) {
   // -------------------------------------------------------------------------
   const handleSalvarFoto = async (e) => {
     e.preventDefault();
-    if (!tituloFoto.trim() || !urlFoto.trim()) return alert("Adicione uma legenda e faça o upload de uma imagem primeiro!");
+    if (!tituloFoto.trim() || !urlFoto.trim()) {
+      return alert("Adicione uma legenda e faça o upload de uma imagem primeiro!");
+    }
 
     try {
       setCarregando(true);
-      const { error } = await supabase.from(NOME_TABELA_GALERIA).insert([{ titulo: tituloFoto, url: urlFoto }]);
+      const { error } = await supabase
+        .from(NOME_TABELA_GALERIA)
+        .insert([{ titulo: tituloFoto.trim(), url: urlFoto.trim() }]);
+
       if (error) throw error;
 
-      alert("Foto adicionada com sucesso!");
+      alert("Foto cadastrada e publicada com sucesso!");
       setTituloFoto('');
       setUrlFoto('');
       buscarDados();
     } catch (err) {
-      alert("Erro ao salvar foto: " + err.message);
+      alert("Erro ao salvar foto no banco: " + err.message);
     } finally {
       setCarregando(false);
     }
@@ -228,7 +217,7 @@ export default function AdminPanel({ setView }) {
   return (
     <div style={{ display: 'flex', minHeight: 'calc(100vh - 70px)', backgroundColor: '#111827' }}>
 
-      {/* Menu Lateral Fixo / Atalhos */}
+      {/* Menu Lateral Fixo */}
       <aside style={{ width: '260px', backgroundColor: '#1f2937', padding: '1.5rem 1rem', borderRight: '1px solid #374151', position: 'sticky', top: '70px', height: 'calc(100vh - 70px)' }}>
         <p style={{ color: '#9ca3af', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '1rem', paddingLeft: '12px' }}>Navegar no Painel</p>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -329,7 +318,7 @@ export default function AdminPanel({ setView }) {
 
         <hr style={{ border: '0', borderTop: '1px solid #374151', margin: 0 }} />
 
-        {/* SEÇÃO 3: GERENCIAMENTO DA GALERIA COM UPLOAD REAL */}
+        {/* SEÇÃO 3: GERENCIAMENTO DA GALERIA */}
         <div ref={secaoGaleriaRef} style={{ scrollMarginTop: '2rem' }}>
           <h3 style={{ color: '#10b981', marginBottom: '1.5rem' }}>🖼️ Painel de Controle e Upload da Galeria</h3>
 
