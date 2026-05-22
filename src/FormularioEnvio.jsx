@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { supabase } from './lib/supabaseClient'; // Conexão direta ativa
+import { supabase } from './lib/supabaseClient';
 
 export default function FormularioEnvio() {
   const [formData, setFormData] = useState({
     nome_autor: '',
     email_autor: '',
     titulo: '',
-    tipo: 'artigo', // 'artigo', 'texto', ou 'video'
-    conteudo: ''    // Link ou texto descritivo
+    tipo: 'artigo',
+    conteudo: ''
   });
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
@@ -22,41 +22,34 @@ export default function FormularioEnvio() {
     setLoading(true);
     setStatusMsg({ type: '', text: '' });
 
-    if (!formData.titulo.trim()) {
-      setLoading(false);
-      return setStatusMsg({ type: 'error', text: 'O título do conteúdo é obrigatório!' });
-    }
-
     try {
-      // Ajustando o tipo 'sugestao_video' para 'video' para bater com o banco de dados
       const tipoCorreto = formData.tipo === 'sugestao_video' ? 'video' : formData.tipo;
 
-      // Mapeando os campos para a tabela correta ('videos') que o Admin gerencia
+      // Inserção ajustada usando as chaves exatas em inglês: title, description, url, type
       const payload = {
-        titulo: formData.titulo,
-        tipo: tipoCorreto,
-        // Se for um texto/notícia, o conteúdo vai para a descrição. Se for link, vai para a URL.
-        descricao: tipoCorreto === 'texto' ? formData.conteudo : `Enviado por: ${formData.nome_autor} (${formData.email_autor}). \n\nResumo: ${formData.conteudo}`,
+        title: formData.titulo.trim(),
+        type: tipoCorreto,
+        description: tipoCorreto === 'texto'
+          ? formData.conteudo
+          : `Enviado por: ${formData.nome_autor} (${formData.email_autor}). \n\nResumo: ${formData.conteudo}`,
         url: tipoCorreto !== 'texto' ? formData.conteudo.trim() : null
       };
 
-      // Inserção real no banco de dados do Supabase
-      const { error } = await supabase.from('videos').insert([payload]);
+      const { error } = await supabase.from('conteudos').insert([payload]);
 
       if (error) throw error;
 
       setStatusMsg({
         type: 'success',
-        text: 'Obrigado! Seu conteúdo foi enviado com sucesso e já está disponível no painel administrativo para visualização/edição.'
+        text: 'Obrigado! Seu conteúdo foi enviado com sucesso e já está disponível no painel.'
       });
 
-      // Limpa o formulário após o sucesso
       setFormData({ nome_autor: '', email_autor: '', titulo: '', tipo: 'artigo', conteudo: '' });
     } catch (err) {
-      console.error("Erro ao enviar dados:", err.message);
+      console.error(err);
       setStatusMsg({
         type: 'error',
-        text: `Erro ao enviar: ${err.message}. Verifique a conexão com o banco.`
+        text: `Erro ao enviar dados para a tabela 'conteudos': ${err.message}`
       });
     } finally {
       setLoading(false);
@@ -82,34 +75,22 @@ export default function FormularioEnvio() {
         <div style={styles.row}>
           <div style={styles.group}>
             <label style={styles.label}>Seu Nome</label>
-            <input
-              type="text" name="nome_autor" value={formData.nome_autor}
-              onChange={handleChange} required style={styles.input} placeholder="Ex: João Silva"
-            />
+            <input type="text" name="nome_autor" value={formData.nome_autor} onChange={handleChange} required style={styles.input} placeholder="Ex: João Silva" />
           </div>
           <div style={styles.group}>
             <label style={styles.label}>Seu E-mail</label>
-            <input
-              type="email" name="email_autor" value={formData.email_autor}
-              onChange={handleChange} required style={styles.input} placeholder="Ex: joao@email.com"
-            />
+            <input type="email" name="email_autor" value={formData.email_autor} onChange={handleChange} required style={styles.input} placeholder="Ex: joao@email.com" />
           </div>
         </div>
 
         <div style={styles.row}>
           <div style={styles.group}>
             <label style={styles.label}>Título do Conteúdo</label>
-            <input
-              type="text" name="titulo" value={formData.titulo}
-              onChange={handleChange} required style={styles.input} placeholder="Ex: Práticas de Permacultura no Sertão"
-            />
+            <input type="text" name="titulo" value={formData.titulo} onChange={handleChange} required style={styles.input} placeholder="Ex: Práticas de Permacultura no Sertão" />
           </div>
           <div style={styles.group}>
             <label style={styles.label}>Tipo de Conteúdo</label>
-            <select
-              name="tipo" value={formData.tipo}
-              onChange={handleChange} style={styles.input}
-            >
+            <select name="tipo" value={formData.tipo} onChange={handleChange} style={styles.input}>
               <option value="artigo">Artigo / PDF (Link)</option>
               <option value="texto">Texto Informativo / Notícia</option>
               <option value="sugestao_video">Sugestão de Vídeo (Link)</option>
@@ -121,11 +102,7 @@ export default function FormularioEnvio() {
           <label style={styles.label}>
             {formData.tipo === 'texto' ? 'Escreva o texto informativo ou notícia completo:' : 'Cole aqui o Link da mídia/artigo:'}
           </label>
-          <textarea
-            name="conteudo" value={formData.conteudo} onChange={handleChange} required
-            style={{ ...styles.input, height: '120px', resize: 'vertical' }}
-            placeholder={formData.tipo === 'texto' ? "Escreva o texto aqui..." : "https://link-do-seu-conteudo.com"}
-          />
+          <textarea name="conteudo" value={formData.conteudo} onChange={handleChange} required style={{ ...styles.input, height: '120px', resize: 'vertical' }} placeholder={formData.tipo === 'texto' ? "Escreva o texto aqui..." : "https://link-do-seu-conteudo.com"} />
         </div>
 
         <button type="submit" disabled={loading} style={styles.button}>
