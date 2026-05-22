@@ -62,6 +62,9 @@ export default function AdminPanel({ setView }) {
   // -------------------------------------------------------------------------
   // 2. UPLOAD DE IMAGEM DIRETO PARA O STORAGE DO SUPABASE
   // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // UPLOAD DE IMAGEM ADAPTADO (À PROVA DE FALHAS DE INITIALIZATION)
+  // -------------------------------------------------------------------------
   const handleUploadFoto = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -69,27 +72,41 @@ export default function AdminPanel({ setView }) {
     try {
       setSubindoImagem(true);
 
-      // Gera um nome único para o arquivo baseado no timestamp
+      // Gera um nome único para o arquivo
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
 
-      // Envia para o Storage do Supabase
-      const { error: uploadError } = await supabase.storage
-        .from(NOME_BUCKET_STORAGE)
-        .upload(filePath, file);
+      // PEGA A URL E A CHAVE DIRETO DO SEU CLIENTE (Evita ler propriedade undefined)
+      const supabaseUrl = supabase.supabaseUrl || "https://sua-url-do-supabase.supabase.co";
+      const supabaseKey = supabase.supabaseKey || "sua-chave-anon-public-aqui";
 
-      if (uploadError) throw uploadError;
+      // Monta a URL exata do endpoint de Storage do seu projeto
+      const urlUpload = `${supabaseUrl}/storage/v1/object/${NOME_BUCKET_STORAGE}/${fileName}`;
 
-      // Pega a URL pública gerada pelo Supabase
-      const { data: { publicUrl } } = supabase.storage
-        .from(NOME_BUCKET_STORAGE)
-        .getPublicUrl(filePath);
+      // Faz o upload usando um fetch nativo direto para a API do Supabase
+      const response = await fetch(urlUpload, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+          'apikey': supabaseKey,
+          'Content-Type': file.type
+        },
+        body: file
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erro na requisição de upload");
+      }
+
+      // Constrói a URL pública final da imagem para salvar na tabela
+      const publicUrl = `${supabaseUrl}/storage/v1/object/public/${NOME_BUCKET_STORAGE}/${fileName}`;
 
       setUrlFoto(publicUrl);
       alert("Imagem carregada com sucesso!");
     } catch (error) {
-      alert("Erro no upload: " + error.message + "\nCertifique-se de que o Bucket '" + NOME_BUCKET_STORAGE + "' foi criado no painel do Supabase com acesso público.");
+      console.error(error);
+      alert("Erro no upload: " + error.message + "\nLembre-se de criar o Bucket Público 'galeria' no painel do Supabase.");
     } finally {
       setSubindoImagem(false);
     }
