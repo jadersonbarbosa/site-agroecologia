@@ -183,7 +183,7 @@ export default function App() {
 
       {/* Banner Principal de Entrada Lado a Lado (Full Width) */}
       <header ref={secaoInicioRef} style={{
-        backgroundImage: "linear-gradient(rgba(61, 40, 23, 0.35), rgba(61, 40, 23, 0.35)), url('/fundo-hero1.jpeg')",
+        backgroundImage: "linear-gradient(rgba(61, 40, 23, 0.25), rgba(61, 40, 23, 0.5)), url('/fundo-hero1.jpeg')",
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center center',
@@ -199,10 +199,7 @@ export default function App() {
         width: '100%',
         boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.15)'
       }}>
-        <div style={{ maxWidth: '800px', padding: '0 1.5rem' }}>
-          <h1 style={{ fontWeight: '800', margin: '0 0 0.8rem 0', fontSize: '2.8rem', letterSpacing: '-0.02em', textShadow: '0 2px 4px rgba(0,0,0,0.4)' }}>Laboratório de Vivências Agroecológicas</h1>
-          <p style={{ margin: 0, color: '#f4ede4', fontSize: '1.2rem', fontWeight: '400', lineHeight: '1.5', textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>Transição sintrópica, segurança alimentar e preservação ambiental ativa comunitária</p>
-        </div>
+
       </header>
 
       {/* CONTEÚDO CORRIDO VERTICAL (TUDO EM UMA SÓ PÁGINA) */}
