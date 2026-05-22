@@ -65,6 +65,9 @@ export default function AdminPanel({ setView }) {
   // -------------------------------------------------------------------------
   // UPLOAD DE IMAGEM ADAPTADO (À PROVA DE FALHAS DE INITIALIZATION)
   // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // UPLOAD DE IMAGEM CORRIGIDO COM FORMDATA (EVITA DATACORRUPTED 400)
+  // -------------------------------------------------------------------------
   const handleUploadFoto = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -72,41 +75,47 @@ export default function AdminPanel({ setView }) {
     try {
       setSubindoImagem(true);
 
-      // Gera um nome único para o arquivo
+      // Gera um nome único para o arquivo baseado no timestamp
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
 
-      // PEGA A URL E A CHAVE DIRETO DO SEU CLIENTE (Evita ler propriedade undefined)
+      // Puxa as credenciais automáticas do seu cliente Supabase
       const supabaseUrl = supabase.supabaseUrl || "https://sua-url-do-supabase.supabase.co";
       const supabaseKey = supabase.supabaseKey || "sua-chave-anon-public-aqui";
 
-      // Monta a URL exata do endpoint de Storage do seu projeto
+      // Monta a URL exata do endpoint do seu bucket
       const urlUpload = `${supabaseUrl}/storage/v1/object/${NOME_BUCKET_STORAGE}/${fileName}`;
 
-      // Faz o upload usando um fetch nativo direto para a API do Supabase
+      // Monta o FormData estruturado para arquivos binários
+      const formData = new FormData();
+      formData.append('cacheControl', '3600');
+      formData.append('file', file);
+
+      // Envia a requisição limpa
       const response = await fetch(urlUpload, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${supabaseKey}`,
-          'apikey': supabaseKey,
-          'Content-Type': file.type
+          'apikey': supabaseKey
+          // NOTA: Não defina 'Content-Type' aqui manualmente. 
+          // O navegador define o boundary correto automaticamente ao receber o FormData!
         },
-        body: file
+        body: formData
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Erro na requisição de upload");
+        throw new Error(errorData.message || "Erro interno no servidor do Storage");
       }
 
-      // Constrói a URL pública final da imagem para salvar na tabela
+      // Constrói o link público final que será gravado no banco de dados
       const publicUrl = `${supabaseUrl}/storage/v1/object/public/${NOME_BUCKET_STORAGE}/${fileName}`;
 
       setUrlFoto(publicUrl);
       alert("Imagem carregada com sucesso!");
     } catch (error) {
       console.error(error);
-      alert("Erro no upload: " + error.message + "\nLembre-se de criar o Bucket Público 'galeria' no painel do Supabase.");
+      alert("Erro no upload: " + error.message);
     } finally {
       setSubindoImagem(false);
     }
