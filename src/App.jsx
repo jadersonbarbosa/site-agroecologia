@@ -145,10 +145,7 @@ export default function App() {
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <div style={{ backgroundColor: 'rgba(26, 74, 31, 0.75)', padding: '1.5rem 2.5rem', borderRadius: '8px' }}>
-          <h1 style={{ fontWeight: 'bold', margin: 0, fontSize: '2.2rem', color: '#fff' }}>🌱 Vivências Agroecológicas</h1>
-          <p style={{ margin: '0.5rem 0 0 0', color: '#d1d5db' }}>Plataforma aberta de compartilhamento de saberes e práticas</p>
-        </div>
+
       </header>
 
       {/* Barra de Menu Superior Fixa (Sticky Navbar) */}
