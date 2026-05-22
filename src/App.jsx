@@ -34,12 +34,12 @@ export default function App() {
       {/* Banner Principal com a Imagem de Fundo Ajustada */}
       <header style={{
         backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.2), rgba(26, 74, 31, 0.2)), url('/fundo-hero1.jpeg')",
-        backgroundSize: 'contain',
+        backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center center',
         backgroundColor: '#e3ece4',
         color: '#ffffff',
-        padding: '4rem 0',
+        padding: '8rem 0',
         textAlign: 'center',
         minHeight: '250px'
       }}>
