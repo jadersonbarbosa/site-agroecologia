@@ -93,7 +93,7 @@ export default function App() {
         color: '#ffffff',
         padding: '2rem 0',
         textAlign: 'center',
-        minHeight: '150px'
+        minHeight: '250px'
       }}>
         <div className="container">
           <h1 style={{ fontWeight: 'bold', visibility: 'hidden' }}>🌱 Aplicação Agroecológica</h1>
