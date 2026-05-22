@@ -131,7 +131,7 @@ export default function App() {
 
 const styles = {
   hero: {
-    backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.85), rgba(26, 74, 31, 0.85)), url('/logo aplicação agroecologica.jpg')",
+    backgroundImage: "linear-gradient(rgba(26, 74, 31, 0.85), rgba(26, 74, 31, 0.85)), url('/fundo-hero.jpg')",
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     color: '#ffffff',
